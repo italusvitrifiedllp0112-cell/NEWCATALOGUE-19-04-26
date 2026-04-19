@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Accordion Flipbook</title>
+
+<link rel="stylesheet" href="style.scss/">
+
+
+<style>
+body {
+  margin: 0;
+  background:black;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Book */
+.book {
+  width: 1400px;
+  height: 1000px;
+  position: relative;
+  display: flex;
+  perspective: 2000px;
+}
+
+/* Page */
+.page {
+  width: 50%;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  transform-origin: left;
+  transition: transform 1.2s cubic-bezier(0.65,0,0.35,1);
+  transform-style: preserve-3d;
+}
+
+/* Inner */
+.page-inner {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  backface-visibility: hidden;
+}
+
+/* Front */
+.front {
+  background-size: cover;
+  background-position: center;
+}
+
+/* Back */
+.back {
+  background-size: cover;
+  background-position: center;
+  transform: rotateY(180deg);
+}
+
+/* Flip effect */
+.page.flipped {
+  transform: rotateY(-180deg);
+}
+
+/* Shadow */
+.page::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 100%;
+  right: 0;
+  top: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.3), transparent);
+  opacity: 0;
+  transition: 0.5s;
+}
+
+.page.flipped::after {
+  opacity: 1;
+}
+
+/* Left static page */
+.left-page {
+  width: 50%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Controls */
+.controls {
+  position: absolute;
+  bottom: -60px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  padding: 20px 20px;
+  background: black;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="book">
+
+  <!-- Left Page -->
+  <div class="left-page" id="leftPage"></div>
+
+  <!-- Flip Page -->
+  <div class="page" id="flipPage">
+    <div class="page-inner front" id="front"></div>
+    <div class="page-inner back" id="back"></div>
+  </div>
+
+</div>
+
+<div class="controls">
+  <button onclick="prev()">⬅ Prev</button>
+  <button onclick="next()">Next ➡</button>
+</div>
+
+
+<audio id="flipSound" src="flippage tone.mp3"></audio>
+
+<script>
+
+let pages = [
+  "IMAGES/1.jpg","IMAGES/2.jpg","IMAGES/3.jpg","IMAGES/4.jpg",
+  "IMAGES/5.jpg","IMAGES/6.jpg","IMAGES/7.jpg","IMAGES/8.jpg",
+  "IMAGES/9.jpg","IMAGES/10.jpg","IMAGES/11.jpg","IMAGES/12.jpg"
+];
+
+let current = 0;
+
+function loadPages() {
+  document.getElementById("leftPage").style.backgroundImage = `url(${pages[current]})`;
+  document.getElementById("front").style.backgroundImage = `url(${pages[current+1]})`;
+  document.getElementById("back").style.backgroundImage = `url(${pages[current+2]})`;
+}
+
+
+function playSound() {
+  let sound = document.getElementById("flipSound");
+  sound.currentTime = 0;
+  sound.play();
+}
+
+
+
+
+function next() {
+  if (current + 3 < pages.length) {
+
+    playSound();
+
+    let flip = document.getElementById("flipPage");
+    flip.classList.add("flipped");
+
+    setTimeout(() => {
+      current += 2;   // 🔥 2 page jump
+      flip.classList.remove("flipped");
+      loadPages();
+    }, 700);
+  }
+}
+
+function prev() {
+
+  playSound();
+  if (current >= 2) {
+    current -= 2;   // 🔥 2 page back
+    loadPages();
+  }
+}
+
+
+
+/* Click to flip */
+document.getElementById("flipPage").onclick = next;
+document.getElementById("leftPage").onclick = next;
+
+loadPages();
+
+</script>
+
+</body>
+</html>
